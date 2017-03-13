@@ -1,1 +1,7 @@
 /* Empty. Add your own CSS if you like */
+.movie-vote-average-header, .movie-title-header {
+	font-weight: bold
+}
+.movie-vote-average, .movie-vote-average-header {
+	float: right;
+}

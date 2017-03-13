@@ -87,6 +87,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     url: '/create-account',
     templateUrl: 'templates/create-account.html',
     controller: 'CreateAccountCtrl'
+  })
+  .state('movies-list', {
+    url: '/movies-list',
+    templateUrl: 'templates/movies-list.html',
+    controller: 'MoviesListCtrl'
   });
 
   // if none of the above states are matched, use this as the fallback
