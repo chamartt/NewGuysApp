@@ -1,1 +1,6 @@
 /* Empty. Add your own CSS if you like */
+.errorText {
+  color: red;
+  text-align: center;
+  font-weight: bold;
+}
