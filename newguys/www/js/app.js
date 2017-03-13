@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ui.router'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ui.router', 'backand'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -22,7 +22,10 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     }
   });
 })
-
+.config(function(BackandProvider) {
+  BackandProvider.setAppName('newguysmovie');
+  BackandProvider.setAnonymousToken('8f360da8-090e-44f5-b864-d1c3a5a743d1');
+})
 .config(function($stateProvider, $urlRouterProvider) {
 
   // Ionic uses AngularUI Router which uses the concept of states
