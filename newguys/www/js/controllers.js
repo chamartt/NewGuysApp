@@ -1,4 +1,4 @@
-angular.module('starter.controllers', [])
+angular.module('starter.controllers', ['ui.router'])
 
 .controller('DashCtrl', function($scope) {})
 
@@ -25,4 +25,18 @@ angular.module('starter.controllers', [])
   $scope.settings = {
     enableFriends: true
   };
+})
+.controller('LoginCtrl', function($scope, $state) {
+  $scope.login = function() {
+    console.log("Faire l'appel et la connexion");
+  }
+
+  $scope.goToCreate = function() {
+    $state.go('create-account');
+  }
+})
+.controller('CreateAccountCtrl', function($scope, $state) {
+  $scope.save = function() {
+    console.log("Enregistrer les données");
+  }
 });
