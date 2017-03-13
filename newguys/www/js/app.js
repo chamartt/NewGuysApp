@@ -92,9 +92,14 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     url: '/movies-list',
     templateUrl: 'templates/movies-list.html',
     controller: 'MoviesListCtrl'
+  })
+  .state('movie-details', {
+    url: '/movie-details/:id',
+    templateUrl: 'templates/movie-details.html',
+    controller: 'MovieDetailsCtrl'
   });
 
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/login');
+  $urlRouterProvider.otherwise('/movies-list');
 
 });
