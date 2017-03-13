@@ -26,34 +26,30 @@ angular.module('starter.controllers', ['ui.router'])
     enableFriends: true
   };
 })
-.controller('LoginCtrl', function($scope, $state, $http, $timeout) {
+.controller('LoginCtrl', function($scope, $state, $http, $timeout, UserService) {
   $scope.data = {
     password: null,
     username: null
   };
-  $scope.errorUsername = false;
-  $scope.errorPassword = false;
+  $scope.errorLogin = false;
   $scope.errorUnexpected = false;
+  var found = false;
 
   $scope.login = function() {
-    $http({
-      method: 'GET',
-      url: 'UrlGetUserFromLogin' + $scope.username,
-    }).then(
+    UserService.all().then(
       function success(response) {
-        if (response.data.length === 0) {
-          $scope.errorUsername = true;
-          $timeout(function () { $scope.errorUsername = false; }, 3000);
+        var data = response.data.data;
+        for (var i = 0; i < data.length; i++) {
+          if ($scope.data.username === data[i].username) {
+            if ($scope.data.password === data[i].password) {
+              $state.go('tab.dash');
+              found = true;
+            }
+          }
         }
-        else {
-          if ($scope.password === reponse.data.password) {
-            console.log("Enregistrer les infos utilisateur en cookie");
-            $state.go('/tab/dash');
-          }
-          else {
-            $scope.errorPassword = true;
-            $timeout(function () { $scope.errorPassword = false; }, 3000);
-          }
+        if (!found) {
+          $scope.errorLogin = true;
+          $timeout(function () { $scope.errorLogin = false; found = false;}, 3000);
         }
       },
       function error(reponse) {
@@ -67,7 +63,7 @@ angular.module('starter.controllers', ['ui.router'])
     $state.go('create-account');
   }
 })
-.controller('CreateAccountCtrl', function($scope, $state, $timeout, $http) {
+.controller('CreateAccountCtrl', function($scope, $state, $timeout, $http, UserService) {
   $scope.data = {
     password: null,
     username: null,
@@ -78,35 +74,31 @@ angular.module('starter.controllers', ['ui.router'])
   $scope.errorUsername = false;
   $scope.errorCreate = false;
 
-  $scope.saveAccount = function(userData) {
-    $http({
-      method: 'POST',
-      url: 'UrlPostUser',
-      data: userData
-    }).then(
-      function success(response) {
-        console.log("Sauvegarder username / password dans un cookie");
-        $state.go('/tab/dash');
-      },
-      function error(reponse) {
-        $scope.errorCreate = true;
-        $timeout(function () { $scope.errorCreate = false; }, 3000);
-      }
-    );
-  }
   $scope.save = function() {
     if ($scope.data.password !== $scope.data.confirmPassword) {
       $scope.errorPassword = true;
       $timeout(function () { $scope.errorPassword = false; }, 3000);
     }
     else {
-      $http({
-        method: 'GET',
-        url: 'UrlGetUserFromLogin/' + $scope.data.username
-      }).then(
+      UserService.all().then(
         function success(response) {
-          if (reponse.data.length !== 0) {
-            $scope.saveAccount($scope.data);
+          var userFound = false;
+          var data = response.data.data;
+          console.log(data);
+          for (var i = 0; i < data.length; i++) {
+            if (data[i].username == $scope.data.username) {
+              userFound = true;
+            }
+          }
+          if (!userFound) {
+            UserService.create($scope.data).then(
+              function success(response) {
+                $state.go('tab.dash');
+              },
+              function error(response) {
+                 $scope.errorCreate = true;
+                 $timeout(function () { $scope.errorCreate = false; }, 3000);
+              });
           }
           else {
             $scope.errorUsername = true;
@@ -118,7 +110,6 @@ angular.module('starter.controllers', ['ui.router'])
           $timeout(function () { $scope.errorUnexpected = false; }, 3000);
         }
       );
-
     }
   }
 });
