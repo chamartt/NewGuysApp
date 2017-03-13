@@ -26,9 +26,41 @@ angular.module('starter.controllers', ['ui.router'])
     enableFriends: true
   };
 })
-.controller('LoginCtrl', function($scope, $state) {
+.controller('LoginCtrl', function($scope, $state, $http, $timeout) {
+  $scope.data = {
+    password: null,
+    username: null
+  };
+  $scope.errorUsername = false;
+  $scope.errorPassword = false;
+  $scope.errorUnexpected = false;
+
   $scope.login = function() {
-    console.log("Faire l'appel et la connexion");
+    $http({
+      method: 'GET',
+      url: 'UrlGetUserFromLogin' + $scope.username,
+    }).then(
+      function success(response) {
+        if (response.data.length === 0) {
+          $scope.errorUsername = true;
+          $timeout(function () { $scope.errorUsername = false; }, 3000);
+        }
+        else {
+          if ($scope.password === reponse.data.password) {
+            console.log("Enregistrer les infos utilisateur en cookie");
+            $state.go('/tab/dash');
+          }
+          else {
+            $scope.errorPassword = true;
+            $timeout(function () { $scope.errorPassword = false; }, 3000);
+          }
+        }
+      },
+      function error(reponse) {
+        $scope.errorUnexpected = true;
+        $timeout(function () { $scope.errorUnexpected = false; }, 3000);
+      }
+    );
   }
 
   $scope.goToCreate = function() {
