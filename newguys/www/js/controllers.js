@@ -26,18 +26,100 @@ angular.module('starter.controllers', ['ui.router'])
     enableFriends: true
   };
 })
-.controller('LoginCtrl', function($scope, $state) {
+.controller('LoginCtrl', function($scope, $state, $http, $timeout) {
+  $scope.data = {
+    password: null,
+    username: null
+  };
+  $scope.errorUsername = false;
+  $scope.errorPassword = false;
+  $scope.errorUnexpected = false;
+
   $scope.login = function() {
-    console.log("Faire l'appel et la connexion");
+    $http({
+      method: 'GET',
+      url: 'UrlGetUserFromLogin' + $scope.username,
+    }).then(
+      function success(response) {
+        if (response.data.length === 0) {
+          $scope.errorUsername = true;
+          $timeout(function () { $scope.errorUsername = false; }, 3000);
+        }
+        else {
+          if ($scope.password === reponse.data.password) {
+            console.log("Enregistrer les infos utilisateur en cookie");
+            $state.go('/tab/dash');
+          }
+          else {
+            $scope.errorPassword = true;
+            $timeout(function () { $scope.errorPassword = false; }, 3000);
+          }
+        }
+      },
+      function error(reponse) {
+        $scope.errorUnexpected = true;
+        $timeout(function () { $scope.errorUnexpected = false; }, 3000);
+      }
+    );
   }
 
   $scope.goToCreate = function() {
     $state.go('create-account');
   }
 })
-.controller('CreateAccountCtrl', function($scope, $state) {
+.controller('CreateAccountCtrl', function($scope, $state, $timeout, $http) {
+  $scope.data = {
+    password: null,
+    username: null,
+    confirmPassword: null
+  };
+  $scope.errorPassword = false;
+  $scope.errorUnexpected = false;
+  $scope.errorUsername = false;
+  $scope.errorCreate = false;
+
+  $scope.saveAccount = function(userData) {
+    $http({
+      method: 'POST',
+      url: 'UrlPostUser',
+      data: userData
+    }).then(
+      function success(response) {
+        console.log("Sauvegarder username / password dans un cookie");
+        $state.go('/tab/dash');
+      },
+      function error(reponse) {
+        $scope.errorCreate = true;
+        $timeout(function () { $scope.errorCreate = false; }, 3000);
+      }
+    );
+  }
   $scope.save = function() {
-    console.log("Enregistrer les données");
+    if ($scope.data.password !== $scope.data.confirmPassword) {
+      $scope.errorPassword = true;
+      $timeout(function () { $scope.errorPassword = false; }, 3000);
+    }
+    else {
+      $http({
+        method: 'GET',
+        url: 'UrlGetUserFromLogin/' + $scope.data.username
+      }).then(
+        function success(response) {
+          if (reponse.data.length !== 0) {
+            $scope.saveAccount($scope.data);
+          }
+          else {
+            $scope.errorUsername = true;
+            $timeout(function () { $scope.errorUsername = false; }, 3000);
+          }
+        },
+        function error(response) {
+          $scope.errorUnexpected = true;
+          $timeout(function () { $scope.errorUnexpected = false; }, 3000);
+        }
+      );
+
+    }
   }
 })
 .controller('MoviesListCtrl', function($scope, $state, $http) {

@@ -5,3 +5,8 @@
 .movie-vote-average, .movie-vote-average-header {
 	float: right;
 }
+.errorText {
+  color: red;
+  text-align: center;
+  font-weight: bold;
+}
