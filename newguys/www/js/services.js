@@ -42,6 +42,19 @@ angular.module('starter.services', [])
         return $http.delete(getUrlForId(id));
     };
 })
+.factory('SessionService',function($http){
+return {
+   set:function(key,value){
+      return localStorage.setItem(key,JSON.stringify(value));
+   },
+   get:function(key){
+     return JSON.parse(localStorage.getItem(key));
+   },
+   destroy:function(key){
+     return localStorage.removeItem(key);
+   },
+ };
+})
 .factory('Chats', function() {
   // Might use a resource here that returns a JSON array
 

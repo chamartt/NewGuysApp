@@ -26,7 +26,7 @@ angular.module('starter.controllers', ['ui.router'])
     enableFriends: true
   };
 })
-.controller('LoginCtrl', function($scope, $state, $http, $timeout, UserService) {
+.controller('LoginCtrl', function($scope, $state, $http, $timeout, UserService, SessionService) {
   $scope.data = {
     password: null,
     username: null
@@ -42,8 +42,11 @@ angular.module('starter.controllers', ['ui.router'])
         for (var i = 0; i < data.length; i++) {
           if ($scope.data.username === data[i].username) {
             if ($scope.data.password === data[i].password) {
-              $state.go('tab.dash');
+              SessionService.set('userInfo', data[i]);
+              console.log(SessionService.get('userInfo'));
+              $state.go('movies-list');
               found = true;
+              break;
             }
           }
         }
@@ -63,7 +66,7 @@ angular.module('starter.controllers', ['ui.router'])
     $state.go('create-account');
   }
 })
-.controller('CreateAccountCtrl', function($scope, $state, $timeout, $http, UserService) {
+.controller('CreateAccountCtrl', function($scope, $state, $timeout, $http, UserService, SessionService) {
   $scope.data = {
     password: null,
     username: null,
@@ -84,7 +87,6 @@ angular.module('starter.controllers', ['ui.router'])
         function success(response) {
           var userFound = false;
           var data = response.data.data;
-          console.log(data);
           for (var i = 0; i < data.length; i++) {
             if (data[i].username == $scope.data.username) {
               userFound = true;
@@ -93,7 +95,8 @@ angular.module('starter.controllers', ['ui.router'])
           if (!userFound) {
             UserService.create($scope.data).then(
               function success(response) {
-                $state.go('tab.dash');
+                SessionService.set('userInfo', response.data);
+                $state.go('movies-list');
               },
               function error(response) {
                  $scope.errorCreate = true;
@@ -113,20 +116,41 @@ angular.module('starter.controllers', ['ui.router'])
     }
   }
 })
-.controller('MoviesListCtrl', function($scope, $state, $http) {
+.controller('MoviesListCtrl', function($scope, $state, $http, $ionicScrollDelegate) {
 	$scope.movies = null;
-  	$http({
-        method : "GET",
-        url : "https://api.themoviedb.org/3/discover/movie?api_key=a4be1c58f768114375aab83155e56d6a&language=fr-FR&sort_by=popularity.desc&include_adult=false&include_video=false&page=1"
-    }).then(function success(response) {
-    	$scope.movies = response.data.results;
-    }, function error(error) {
+	$scope.currentPage = 1;
+
+	$scope.previousPage = function() {
+	  if ($scope.currentPage > 1) {
+	    $scope.currentPage--;
+	    $scope.getMovies();
+	  }
+	};
+
+	$scope.nextPage = function() {
+	    $scope.currentPage++;
+	    $scope.getMovies();
+	};
+
+	$scope.getMovies = function() {
+	    $ionicScrollDelegate.scrollTop();
+	    $http({
+         method : "GET",
+         url : "https://api.themoviedb.org/3/discover/movie?api_key=a4be1c58f768114375aab83155e56d6a&language=fr-FR&sort_by=popularity.desc&include_adult=false&include_video=false&page=" + $scope.currentPage
+      }).then(function success(response) {
+        console.log(response.data.results);
+        $scope.movies = response.data.results;
+      }, function error(error) {
         console.log(error);
-    });
+      });
+	  };
+
 
   	$scope.movieDetails = function(id) {
-		$state.go('movie-details', {"id":id});
+		  $state.go('movie-details', {"id":id});
   	};
+
+  	$scope.getMovies();
 })
 .controller('MovieDetailsCtrl', function($scope, $stateParams, $http) {
 	var id = $stateParams.id
