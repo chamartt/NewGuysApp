@@ -152,7 +152,20 @@ angular.module('starter.controllers', ['ui.router'])
 
   	$scope.getMovies();
 })
-.controller('MovieDetailsCtrl', function($scope, $stateParams, $http) {
-	var id = $stateParams.id
-  	console.log("Récupérer ID du film onclick sur la liste, et utiliser l'ID pour récupérer les détails");
+.controller('MovieDetailsCtrl', function($scope, $stateParams, $http, $ionicScrollDelegate) {
+  $scope.movie = null;
+
+  $scope.getDetails = function() {
+    $ionicScrollDelegate.scrollTop();
+    $http({
+       method : "GET",
+       url : "https://api.themoviedb.org/3/movie/" + $stateParams.id + "?api_key=a4be1c58f768114375aab83155e56d6a&language=fr-FR"
+    }).then(function success(response) {
+      $scope.movie = response.data;
+    }, function error(error) {
+      console.log(error);
+    });
+  };
+
+  $scope.getDetails();
 });
