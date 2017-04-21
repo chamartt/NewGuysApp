@@ -1,4 +1,4 @@
-angular.module('starter.controllers', ['ui.router'])
+angular.module('starter.controllers', ['ui.router', 'ionic'])
 
 .controller('DashCtrl', function($scope) {})
 
@@ -43,8 +43,11 @@ angular.module('starter.controllers', ['ui.router'])
           if ($scope.data.username === data[i].username) {
             if ($scope.data.password === data[i].password) {
               SessionService.set('userInfo', data[i]);
-              console.log(SessionService.get('userInfo'));
               $state.go('movies-list');
+              $scope.data = {
+                password: null,
+                username: null
+              };
               found = true;
               break;
             }
@@ -116,9 +119,32 @@ angular.module('starter.controllers', ['ui.router'])
     }
   }
 })
-.controller('MoviesListCtrl', function($scope, $state, $http, $ionicScrollDelegate) {
+.controller('MoviesListCtrl', function($scope, $state, $http, $ionicScrollDelegate, SessionService, $ionicPopup) {
 	$scope.movies = null;
 	$scope.currentPage = 1;
+	$scope.user = SessionService.get('userInfo');
+	$scope.alertPopup = null;
+
+  $scope.goToFavoris = function() {
+  };
+
+  $scope.goToSuggestions = function() {
+    $state.go("movies-list");
+  };
+
+  $scope.disconnect = function() {
+    $scope.alertPopup.close();
+    SessionService.destroy("userInfo");
+    $state.go("login");
+  };
+
+  $scope.showAlert = function() {
+    $scope.alertPopup = $ionicPopup.alert({
+      title: '<div class="popup-title">Utilisateur</div>',
+      scope: $scope,
+      template: '<ul class="list"><li class="item popup-item" ng-click="goToFavoris()">Favoris</li><li class="item popup-item" ng-click="disconnect()">Deconnexion</li></ul>'
+    });
+  };
 
 	$scope.previousPage = function() {
 	  if ($scope.currentPage > 1) {
@@ -132,13 +158,16 @@ angular.module('starter.controllers', ['ui.router'])
 	    $scope.getMovies();
 	};
 
+  $scope.goToSearch = function() {
+    $state.go('search');
+  };
+
 	$scope.getMovies = function() {
 	    $ionicScrollDelegate.scrollTop();
 	    $http({
          method : "GET",
          url : "https://api.themoviedb.org/3/discover/movie?api_key=a4be1c58f768114375aab83155e56d6a&language=fr-FR&sort_by=popularity.desc&include_adult=false&include_video=false&page=" + $scope.currentPage
       }).then(function success(response) {
-        console.log(response.data.results);
         $scope.movies = response.data.results;
       }, function error(error) {
         console.log(error);
@@ -152,8 +181,102 @@ angular.module('starter.controllers', ['ui.router'])
 
   	$scope.getMovies();
 })
-.controller('MovieDetailsCtrl', function($scope, $stateParams, $http, $ionicScrollDelegate) {
-  $scope.movie = null;
+.controller('SearchCtrl', function($scope, $state, $stateParams, $http, $ionicScrollDelegate, SessionService, $ionicPopup) {
+  /*
+      REQUETE RECHERCHE PAR TITRE
+      https://api.themoviedb.org/3/search/movie?query=tron&api_key=a4be1c58f768114375aab83155e56d6a&language=fr-FR&page=1&include_adult=false
+
+      REQUETE RECHERCHE PAR GENRE
+      https://api.themoviedb.org/3/discover/movie?api_key=###&with_genres=10751&sort_by=popularity.desc&include_adult=false
+      http://api.themoviedb.org/3/genre/10751/movies?api_key=<key>&include_adult=false
+
+
+
+  */
+  $scope.genres = null;
+  $scope.user = SessionService.get('userInfo');
+  $scope.alertPopup = null;
+  $scope.selectedGenre = null;
+
+  $scope.goToFavoris = function() {
+  };
+
+  $scope.goToSuggestions = function() {
+    $state.go("movies-list");
+  };
+  $scope.disconnect = function() {
+    $scope.alertPopup.close();
+    SessionService.destroy("userInfo");
+    $state.go("login");
+  };
+
+  $scope.showAlert = function() {
+    $scope.alertPopup = $ionicPopup.alert({
+      title: '<div class="popup-title">Utilisateur</div>',
+      scope: $scope,
+      template: '<ul class="list"><li class="item popup-item" ng-click="goToFavoris()">Favoris</li><li class="item popup-item" ng-click="disconnect()">Deconnexion</li></ul>'
+    });
+  };
+
+  $scope.goToSearch = function() {
+    $state.go('search');
+  };
+
+  $scope.getGenres = function() {
+    $http({
+       method : "GET",
+       url : "https://api.themoviedb.org/3/genre/movie/list?api_key=a4be1c58f768114375aab83155e56d6a&language=fr-FR"
+    }).then(function success(response) {
+      $scope.genres = response.data.genres;
+      $scope.selectedGenre = $scope.genres[0];
+    }, function error(error) {
+      console.log(error);
+    });
+  };
+
+  $scope.getGenres();
+})
+.controller('MovieDetailsCtrl', function($scope, $state, $stateParams, $http, $ionicScrollDelegate, SessionService, $ionicPopup) {
+  $scope.movieDetails = null;
+  $scope.genres = null;
+  $scope.user = SessionService.get('userInfo');
+  $scope.alertPopup = null;
+
+  $scope.goToFavoris = function() {
+  };
+
+  $scope.goToSuggestions = function() {
+    $state.go("movies-list");
+  };
+
+  $scope.disconnect = function() {
+    $scope.alertPopup.close();
+    SessionService.destroy("userInfo");
+    $state.go("login");
+  };
+
+  $scope.showAlert = function() {
+    $scope.alertPopup = $ionicPopup.alert({
+      title: '<div class="popup-title">Utilisateur</div>',
+      scope: $scope,
+      template: '<ul class="list"><li class="item popup-item" ng-click="goToFavoris()">Favoris</li><li class="item popup-item" ng-click="disconnect()">Deconnexion</li></ul>'
+    });
+  };
+
+  $scope.goToSearch = function() {
+    $state.go('search');
+  };
+
+  $scope.getGenres = function() {
+    $http({
+       method : "GET",
+       url : "https://api.themoviedb.org/3/genre/movie/list?api_key=a4be1c58f768114375aab83155e56d6a&language=fr-FR"
+    }).then(function success(response) {
+      $scope.genres = response.data.genres;
+    }, function error(error) {
+      console.log(error);
+    });
+  };
 
   $scope.getDetails = function() {
     $ionicScrollDelegate.scrollTop();
@@ -161,11 +284,12 @@ angular.module('starter.controllers', ['ui.router'])
        method : "GET",
        url : "https://api.themoviedb.org/3/movie/" + $stateParams.id + "?api_key=a4be1c58f768114375aab83155e56d6a&language=fr-FR"
     }).then(function success(response) {
-      $scope.movie = response.data;
+      $scope.movieDetails = response.data;
     }, function error(error) {
       console.log(error);
     });
   };
 
+  $scope.getGenres();
   $scope.getDetails();
 });

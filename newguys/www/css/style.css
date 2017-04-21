@@ -1,4 +1,19 @@
 /* Empty. Add your own CSS if you like */
+
+.login-content {
+  display: flex;
+  justify-content: center;
+}
+
+.login-content .scroll {
+  display: flex;
+  justify-content: center;
+}
+
+.login-container {
+  align-self: center;
+}
+
 .movie-vote-average-header, .movie-title-header {
 	font-weight: bold
 }
@@ -9,4 +24,106 @@
   color: red;
   text-align: center;
   font-weight: bold;
+}
+
+.button-positive {
+  background-color: #11c1f3 !important;
+}
+
+.bar-subheader {
+  background-color: #11c1f3 !important;
+}
+
+.subheader-item {
+  text-align: center;
+  width: 33%;
+  padding: 5px;
+  font-weight: bold;
+  color: white;
+}
+
+.popup {
+  background-color: rgba(255, 255, 255, 1) !important;
+}
+
+.popup-body {
+  padding: 1px !important;
+  overflow: none !important;
+  margin-top: -1px !important;
+}
+
+.popup-title {
+  font-weight: bold;
+}
+
+.popup-head {
+  background-color: #11c1f3 !important;
+  color: white !important;
+  border-bottom: none !important;
+}
+
+.popup-item {
+  text-align: center;
+}
+
+.list {
+  margin-top: 0px !important;
+}
+
+.list-item-info {
+  align-self: center;
+}
+
+.button-in-list {
+  height: 35px !important;
+  line-height: 35px !important;
+  min-height: 0px !important;
+}
+
+.movie-img {
+  top: 23px !important;
+  left: 25px !important;
+  width: auto !important;
+}
+
+.movie-details-title {
+    overflow: auto !important;
+    text-overflow: inherit !important;
+    white-space: normal !important;
+}
+.button-bar > .button:first-child {
+  margin-right: 5px !important;
+}
+.button-bar > .button:before, .button-bar > .button .icon:before {
+  line-height: inherit !important;
+}
+.search-select {
+  border: none !important;
+  font-weight: normal !important;
+}
+
+.genre-title {
+  width: 25% !important;
+}
+.genre-select {
+  width: 65% !important;
+}
+.genre-icon {
+  width: 25% !important;
+  text-align: center !important;
+  color: #11c1f3 !important;
+}
+
+.title-label {
+    width: 25% !important;
+}
+.title-input {
+    width: 50% !important;
+    margin: 0px !important;
+    padding: 0px !important;
+}
+.title-icon {
+  width: 25% !important;
+  color: #11c1f3 !important;
+  text-align: center !important;
 }

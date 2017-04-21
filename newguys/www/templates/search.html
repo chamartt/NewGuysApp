@@ -1,0 +1,27 @@
+<ion-view view-title="Recherche" name="search-view">
+  <div class="bar bar-subheader" style="justify-content: space-between;">
+    <div class="button-bar">
+      <div class="subheader-item" ng-click="goToSearch()">Rechercher</div>
+      <div class="subheader-item" ng-click="goToSuggestions()">Suggestions</div>
+      <div class="subheader-item" ng-click="showAlert()">{{ user.username }}</div>
+    </div>
+  </div>
+  <ion-content class="padding" style="margin-top: 50px; margin-bottom: 50px;">
+    <div class="list list-inset">
+      <label class="item item-input">
+        <div class="input-label title-label">
+          Titre
+        </div>
+        <input class="input title-input" type="text" placeholder="Titre">
+        <i class="ion-search title-icon"></i>
+      </label>
+      <label class="item item-input">
+        <div class="input-label genre-title">
+          Genre
+        </div>
+        <select class="search-select genre-select" ng-options="genre.name for genre in genres track by genre.id" ng-model="selectedGenre"></select>
+        <i class="ion-search genre-icon"></i>
+      </label>
+    </div>
+  </ion-content>
+</ion-view>

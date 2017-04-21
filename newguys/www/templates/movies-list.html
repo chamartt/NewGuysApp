@@ -1,17 +1,30 @@
-<ion-view view-title="Films" name="movies-list-view">
-  <ion-content class="padding">
-    <div class="list" style="margin-bottom: 55px;">
-      <div ng-click="movieDetails({{movie.id}})"class="item item-thumbnail-left" ng-repeat="movie in movies track by $index">
-        <img ng-src="https://image.tmdb.org/t/p/w75/{{movie.poster_path}}" />
-        <h2>{{ movie.title }}</h2>
-        <p>Sortie : {{ movie.release_date | date:'dd/MM/yyyy'}}</p>
-        <p>Note : {{ movie.vote_average}} / 10</p>
+<ion-view view-title="Suggestions" name="movies-list-view">
+  <div class="bar bar-subheader" style="justify-content: space-between;">
+    <div class="button-bar">
+      <div class="subheader-item" ng-click="goToSearch()">Rechercher</div>
+      <div class="subheader-item" ng-click="goToSuggestions()">Suggestions</div>
+      <div class="subheader-item" ng-click="showAlert()">{{ user.username }}</div>
+    </div>
+  </div>
+  <ion-content class="padding" style="margin-top: 50px; margin-bottom: 50px;">
+    <div class="list">
+      <div class="item item-thumbnail-left list-item" ng-repeat="movie in movies track by $index">
+        <img class="movie-img" ng-src="https://image.tmdb.org/t/p/w75/{{movie.poster_path}}" />
+        <div class="list-item-info">
+          <h2>{{ movie.title }}</h2>
+          <p>Sortie : {{ movie.release_date | date:'dd/MM/yyyy'}}</p>
+          <p>Note : {{ movie.vote_average}} / 10</p>
+          <div class="button-bar">
+            <button class="button button-calm button-in-list" ng-click="movieDetails({{movie.id}})">Details</button>
+            <button class="button button-calm button-in-list"><i class="icon ion-heart"></i></button>
+          </div>
+        </div>
       </div>
     </div>
   </ion-content>
   <div class="bar bar-footer">
-    <button ng-click="previousPage()" class="button">Précédent</button>
+    <button ng-click="previousPage()" class="button button-calm">Précédent</button>
     <div class="title">Page {{ currentPage }}</div>
-    <button ng-click="nextPage()" class="button">Suivant</button>
+    <button ng-click="nextPage()" class="button button-calm">Suivant</button>
   </div>
 </ion-view>

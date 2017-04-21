@@ -96,6 +96,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     templateUrl: 'templates/movies-list.html',
     controller: 'MoviesListCtrl'
   })
+  .state('search', {
+    url: '/search',
+    templateUrl: 'templates/search.html',
+    controller: 'SearchCtrl'
+  })
   .state('movie-details', {
     url: '/movie-details/:id',
     templateUrl: 'templates/movie-details.html',
