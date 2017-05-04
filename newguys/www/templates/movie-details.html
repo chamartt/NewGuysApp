@@ -9,7 +9,8 @@
   <ion-content class="padding" style="margin-top: 50px; margin-bottom: 50px;">
     <div class="list card">
       <div class="item item-avatar">
-        <img ng-src="https://image.tmdb.org/t/p/w75/{{movieDetails.poster_path}}" />
+        <img ng-if="movieDetails.poster_path != null" ng-src="https://image.tmdb.org/t/p/w75/{{movieDetails.poster_path}}" ng-cloak />
+        <img ng-if="movieDetails.poster_path == null" ng-src="../img/notfound_small.png" ng-cloak />
         <h2 class="movie-details-title">{{ movieDetails.title }}</h2>
         <p>Sortie : {{ movieDetails.release_date | date:'dd/MM/yyyy'}}</p>
       </div>

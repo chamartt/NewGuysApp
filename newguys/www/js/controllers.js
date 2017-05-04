@@ -142,7 +142,7 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
     $scope.alertPopup = $ionicPopup.alert({
       title: '<div class="popup-title">Utilisateur</div>',
       scope: $scope,
-      template: '<ul class="list"><li class="item popup-item" ng-click="goToFavoris()">Favoris</li><li class="item popup-item" ng-click="disconnect()">Deconnexion</li></ul>'
+      template: '<ul class="list"><li class="item popup-item" ng-click="disconnect()">Deconnexion</li></ul>'
     });
   };
 
@@ -184,11 +184,11 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
 .controller('SearchCtrl', function($scope, $state, $stateParams, $http, $ionicScrollDelegate, SessionService, $ionicPopup) {
   /*
       REQUETE RECHERCHE PAR TITRE
-      https://api.themoviedb.org/3/search/movie?query=tron&api_key=a4be1c58f768114375aab83155e56d6a&language=fr-FR&page=1&include_adult=false
+      https://api.themoviedb.org/3/search/movie?query=FILM_NAME&api_key=a4be1c58f768114375aab83155e56d6a&language=fr-FR&page=1&include_adult=false
 
       REQUETE RECHERCHE PAR GENRE
       https://api.themoviedb.org/3/discover/movie?api_key=###&with_genres=10751&sort_by=popularity.desc&include_adult=false
-      http://api.themoviedb.org/3/genre/10751/movies?api_key=<key>&include_adult=false
+      http://api.themoviedb.org/3/genre/10751/movies?api_key=a4be1c58f768114375aab83155e56d6a&language=fr-FR&page=1&include_adult=false
 
 
 
@@ -197,6 +197,11 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
   $scope.user = SessionService.get('userInfo');
   $scope.alertPopup = null;
   $scope.selectedGenre = null;
+  $scope.selectedTitle = {};
+  $scope.selectedTitle.title = "";
+  $scope.currentPage = 1;
+  $scope.searchType = null;
+  $scope.movies = null;
 
   $scope.goToFavoris = function() {
   };
@@ -214,12 +219,74 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
     $scope.alertPopup = $ionicPopup.alert({
       title: '<div class="popup-title">Utilisateur</div>',
       scope: $scope,
-      template: '<ul class="list"><li class="item popup-item" ng-click="goToFavoris()">Favoris</li><li class="item popup-item" ng-click="disconnect()">Deconnexion</li></ul>'
+      template: '<ul class="list"><li class="item popup-item" ng-click="disconnect()">Deconnexion</li></ul>'
     });
   };
 
   $scope.goToSearch = function() {
     $state.go('search');
+  };
+
+  $scope.movieDetails = function(id) {
+    $state.go('movie-details', {"id":id});
+  };
+
+  $scope.previousPage = function() {
+    if ($scope.currentPage > 1) {
+      $scope.currentPage--;
+      if ($scope.searchType == 1)
+        $scope.searchWithTitle();
+      else
+        $scope.searchWithGenre();
+    }
+  };
+
+  $scope.nextPage = function() {
+      $scope.currentPage++;
+      if ($scope.searchType == 1)
+        $scope.searchWithTitle();
+      else
+        $scope.searchWithGenre();
+  };
+
+  $scope.changedValue = function(item) {
+    $scope.selectedGenre = item;
+  };
+
+  $scope.launchSearchGenre = function() {
+    $scope.currentPage = 1;
+    $scope.searchWithGenre();
+  };
+
+  $scope.launchSearchTitle = function() {
+    $scope.currentPage = 1;
+    $scope.searchWithTitle();
+  };
+
+  $scope.searchWithTitle = function() {
+    $ionicScrollDelegate.scrollTop();
+    $http({
+       method : "GET",
+       url : "https://api.themoviedb.org/3/search/movie?query=" + $scope.selectedTitle.title + "&api_key=a4be1c58f768114375aab83155e56d6a&language=fr-FR&include_adult=false&page=" + $scope.currentPage
+    }).then(function success(response) {
+      $scope.movies = response.data.results;
+      $scope.searchType = 1;
+    }, function error(error) {
+      console.log(error);
+    });
+  };
+
+  $scope.searchWithGenre = function() {
+    $ionicScrollDelegate.scrollTop();
+    $http({
+       method : "GET",
+       url : "https://api.themoviedb.org/3/discover/movie?api_key=a4be1c58f768114375aab83155e56d6a&with_genres=" + $scope.selectedGenre.id + "&sort_by=popularity.desc&include_adult=false&page=" + $scope.currentPage
+    }).then(function success(response) {
+      $scope.movies = response.data.results;
+      $scope.searchType = 2;
+    }, function error(error) {
+      console.log(error);
+    });
   };
 
   $scope.getGenres = function() {
@@ -229,6 +296,7 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
     }).then(function success(response) {
       $scope.genres = response.data.genres;
       $scope.selectedGenre = $scope.genres[0];
+      $scope.searchWithGenre();
     }, function error(error) {
       console.log(error);
     });
@@ -259,7 +327,7 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
     $scope.alertPopup = $ionicPopup.alert({
       title: '<div class="popup-title">Utilisateur</div>',
       scope: $scope,
-      template: '<ul class="list"><li class="item popup-item" ng-click="goToFavoris()">Favoris</li><li class="item popup-item" ng-click="disconnect()">Deconnexion</li></ul>'
+      template: '<ul class="list"><li class="item popup-item" ng-click="disconnect()">Deconnexion</li></ul>'
     });
   };
 
