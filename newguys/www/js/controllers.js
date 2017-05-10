@@ -148,14 +148,14 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
 
 	$scope.previousPage = function() {
 	  if ($scope.currentPage > 1) {
-	    $scope.currentPage--;
 	    $scope.getMovies();
+	    $scope.currentPage--;
 	  }
 	};
 
 	$scope.nextPage = function() {
-	    $scope.currentPage++;
 	    $scope.getMovies();
+	    $scope.currentPage++;
 	};
 
   $scope.goToSearch = function() {
@@ -233,20 +233,20 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
 
   $scope.previousPage = function() {
     if ($scope.currentPage > 1) {
-      $scope.currentPage--;
       if ($scope.searchType == 1)
         $scope.searchWithTitle();
       else
         $scope.searchWithGenre();
+      $scope.currentPage--;
     }
   };
 
   $scope.nextPage = function() {
-      $scope.currentPage++;
       if ($scope.searchType == 1)
         $scope.searchWithTitle();
       else
         $scope.searchWithGenre();
+       $scope.currentPage++;
   };
 
   $scope.changedValue = function(item) {
