@@ -57,7 +57,14 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     url: '/movie-details/:id',
     templateUrl: './templates/movie-details.html',
     controller: 'MovieDetailsCtrl'
-  });
+  })
+
+      .state('recherche', {
+    url: '/recherche',
+    templateUrl: 'templates/recherche.html',
+    controller: 'RechercheCtrl'
+  })
+  ;
 
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/login');
