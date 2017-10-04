@@ -57,6 +57,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     url: '/movie-details/:id',
     templateUrl: './templates/movie-details.html',
     controller: 'MovieDetailsCtrl'
+  })
+  .state('favoris-list', {
+    url: '/favoris',
+    templateUrl: './templates/favoris-list.html',
+    controller: 'FavorisListCtrl'
   });
 
   // if none of the above states are matched, use this as the fallback

@@ -1,31 +1,5 @@
 angular.module('starter.controllers', ['ui.router', 'ionic'])
 
-.controller('DashCtrl', function($scope) {})
-
-.controller('ChatsCtrl', function($scope, Chats) {
-  // With the new view caching in Ionic, Controllers are only called
-  // when they are recreated or on app start, instead of every page change.
-  // To listen for when this page is active (for example, to refresh data),
-  // listen for the $ionicView.enter event:
-  //
-  //$scope.$on('$ionicView.enter', function(e) {
-  //});
-
-  $scope.chats = Chats.all();
-  $scope.remove = function(chat) {
-    Chats.remove(chat);
-  };
-})
-
-.controller('ChatDetailCtrl', function($scope, $stateParams, Chats) {
-  $scope.chat = Chats.get($stateParams.chatId);
-})
-
-.controller('AccountCtrl', function($scope) {
-  $scope.settings = {
-    enableFriends: true
-  };
-})
 .controller('LoginCtrl', function($scope, $state, $http, $timeout, UserService, SessionService) {
   $scope.data = {
     password: null,
@@ -36,33 +10,22 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
   var found = false;
 
   $scope.login = function() {
-    UserService.all().then(
-      function success(response) {
-        var data = response.data.data;
-        for (var i = 0; i < data.length; i++) {
-          if ($scope.data.username === data[i].username) {
-            if ($scope.data.password === data[i].password) {
-              SessionService.set('userInfo', data[i]);
-              $state.go('movies-list');
-              $scope.data = {
-                password: null,
-                username: null
-              };
-              found = true;
-              break;
-            }
-          }
-        }
-        if (!found) {
-          $scope.errorLogin = true;
-          $timeout(function () { $scope.errorLogin = false; found = false;}, 3000);
-        }
-      },
-      function error(reponse) {
-        $scope.errorUnexpected = true;
-        $timeout(function () { $scope.errorUnexpected = false; }, 3000);
-      }
-    );
+     $http({
+        method : "POST",
+        url : "http://localhost:8080/api/user/" + $scope.data.username + "/" + $scope.data.password
+     }).then(function mySuccess(response) {
+        console.log(response);
+        SessionService.set('userInfo', response.data);
+        $state.go('movies-list');
+        $scope.data = {
+          password: null,
+          username: null
+        };
+     }, function myError(response) {
+        $scope.errorLogin = true;
+        console.log(response);
+        $timeout(function () { $scope.errorLogin = false; }, 3000);
+    });
   }
 
   $scope.goToCreate = function() {
@@ -86,36 +49,26 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
       $timeout(function () { $scope.errorPassword = false; }, 3000);
     }
     else {
-      UserService.all().then(
-        function success(response) {
-          var userFound = false;
-          var data = response.data.data;
-          for (var i = 0; i < data.length; i++) {
-            if (data[i].username == $scope.data.username) {
-              userFound = true;
-            }
-          }
-          if (!userFound) {
-            UserService.create($scope.data).then(
-              function success(response) {
-                SessionService.set('userInfo', response.data);
-                $state.go('movies-list');
-              },
-              function error(response) {
-                 $scope.errorCreate = true;
-                 $timeout(function () { $scope.errorCreate = false; }, 3000);
-              });
-          }
-          else {
+      $http({
+          method : "POST",
+          url : "http://localhost:8080/api/user/create",
+                           data : JSON.stringify({
+            "username" : $scope.data.username,
+            "password" : $scope.data.password
+          })
+       }).then(function mySuccess(response) {
+          if (response.status == 226) {
             $scope.errorUsername = true;
             $timeout(function () { $scope.errorUsername = false; }, 3000);
           }
-        },
-        function error(response) {
-          $scope.errorUnexpected = true;
-          $timeout(function () { $scope.errorUnexpected = false; }, 3000);
-        }
-      );
+          else {
+            SessionService.set('userInfo', response.data);
+            $state.go('movies-list');
+          }
+       }, function myError(response) {
+           $scope.errorCreate = true;
+           $timeout(function () { $scope.errorCreate = false; }, 3000);
+      });
     }
   }
 })
@@ -126,6 +79,8 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
 	$scope.alertPopup = null;
 
   $scope.goToFavoris = function() {
+    $scope.alertPopup.close();
+    $state.go("favoris-list");
   };
 
   $scope.goToSuggestions = function() {
@@ -142,20 +97,45 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
     $scope.alertPopup = $ionicPopup.alert({
       title: '<div class="popup-title">Utilisateur</div>',
       scope: $scope,
-      template: '<ul class="list"><li class="item popup-item" ng-click="disconnect()">Deconnexion</li></ul>'
+      template: '<ul class="list"><li class="item popup-item" ng-click="disconnect()">Deconnexion</li><li class="item popup-item" ng-click="goToFavoris()">Favoris</li></ul>'
     });
   };
 
 	$scope.previousPage = function() {
 	  if ($scope.currentPage > 1) {
-	    $scope.getMovies();
 	    $scope.currentPage--;
+	    $scope.getMovies();
 	  }
 	};
 
+	$scope.addFavoris = function(movie) {
+	  $http({
+	    method : "POST",
+      url : "http://localhost:8080/api/favoris",
+      data : JSON.stringify({
+        "movieid" : movie.id,
+        "titre" : movie.title,
+        "userid" : $scope.user.id,
+        "image" : "https://image.tmdb.org/t/p/w75" + movie.poster_path,
+        "dtsortie" : movie.release_date,
+        "note" : movie.vote_average
+      })
+    }).then(function mySuccess(response) {
+      if (response.status == 226) {
+        // afficher tooltip "Ce favoris est deja dans votre liste"
+      }
+      else {
+        // afficher tooltip "Favoris ajouté"
+      }
+      console.log(response);
+     }, function myError(response) {
+      console.log(response);
+    });
+	};
+
 	$scope.nextPage = function() {
-	    $scope.getMovies();
 	    $scope.currentPage++;
+	    $scope.getMovies();
 	};
 
   $scope.goToSearch = function() {
@@ -204,6 +184,8 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
   $scope.movies = null;
 
   $scope.goToFavoris = function() {
+    $scope.alertPopup.close();
+    $state.go("favoris-list");
   };
 
   $scope.goToSuggestions = function() {
@@ -219,7 +201,7 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
     $scope.alertPopup = $ionicPopup.alert({
       title: '<div class="popup-title">Utilisateur</div>',
       scope: $scope,
-      template: '<ul class="list"><li class="item popup-item" ng-click="disconnect()">Deconnexion</li></ul>'
+      template: '<ul class="list"><li class="item popup-item" ng-click="disconnect()">Deconnexion</li><li class="item popup-item" ng-click="goToFavoris()">Favoris</li></ul>'
     });
   };
 
@@ -233,20 +215,20 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
 
   $scope.previousPage = function() {
     if ($scope.currentPage > 1) {
+      $scope.currentPage--;
       if ($scope.searchType == 1)
         $scope.searchWithTitle();
       else
         $scope.searchWithGenre();
-      $scope.currentPage--;
     }
   };
 
   $scope.nextPage = function() {
+      $scope.currentPage++;
       if ($scope.searchType == 1)
         $scope.searchWithTitle();
       else
         $scope.searchWithGenre();
-       $scope.currentPage++;
   };
 
   $scope.changedValue = function(item) {
@@ -302,6 +284,31 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
     });
   };
 
+  $scope.addFavoris = function(movie) {
+    $http({
+      method : "POST",
+      url : "http://localhost:8080/api/favoris",
+      data : JSON.stringify({
+        "movieid" : movie.id,
+        "titre" : movie.title,
+        "userid" : $scope.user.id,
+        "image" : "https://image.tmdb.org/t/p/w75" + movie.poster_path,
+        "dtsortie" : movie.release_date,
+        "note" : movie.vote_average
+      })
+    }).then(function mySuccess(response) {
+      if (response.status == 226) {
+        // afficher tooltip "Ce favoris est deja dans votre liste"
+      }
+      else {
+        // afficher tooltip "Favoris ajouté"
+      }
+      console.log(response);
+     }, function myError(response) {
+      console.log(response);
+    });
+  };
+
   $scope.getGenres();
 })
 .controller('MovieDetailsCtrl', function($scope, $state, $stateParams, $http, $ionicScrollDelegate, SessionService, $ionicPopup) {
@@ -311,6 +318,8 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
   $scope.alertPopup = null;
 
   $scope.goToFavoris = function() {
+    $scope.alertPopup.close();
+    $state.go("favoris-list");
   };
 
   $scope.goToSuggestions = function() {
@@ -327,7 +336,7 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
     $scope.alertPopup = $ionicPopup.alert({
       title: '<div class="popup-title">Utilisateur</div>',
       scope: $scope,
-      template: '<ul class="list"><li class="item popup-item" ng-click="disconnect()">Deconnexion</li></ul>'
+      template: '<ul class="list"><li class="item popup-item" ng-click="disconnect()">Deconnexion</li><li class="item popup-item" ng-click="goToFavoris()">Favoris</li></ul>'
     });
   };
 
@@ -360,4 +369,68 @@ angular.module('starter.controllers', ['ui.router', 'ionic'])
 
   $scope.getGenres();
   $scope.getDetails();
+})
+.controller('FavorisListCtrl', function($scope, $state, $http, $ionicScrollDelegate, SessionService, $ionicPopup) {
+	$scope.favoris = null;
+	$scope.user = SessionService.get('userInfo');
+	$scope.alertPopup = null;
+
+  $scope.goToFavoris = function() {
+    $scope.alertPopup.close();
+    $state.go("favoris-list");
+  };
+
+  $scope.goToSuggestions = function() {
+    $state.go("movies-list");
+  };
+
+  $scope.disconnect = function() {
+    $scope.alertPopup.close();
+    SessionService.destroy("userInfo");
+    $state.go("login");
+  };
+
+  $scope.showAlert = function() {
+    $scope.alertPopup = $ionicPopup.alert({
+      title: '<div class="popup-title">Utilisateur</div>',
+      scope: $scope,
+      template: '<ul class="list"><li class="item popup-item" ng-click="disconnect()">Deconnexion</li><li class="item popup-item" ng-click="goToFavoris()">Favoris</li></ul>'
+    });
+  };
+
+  $scope.goToSearch = function() {
+    $state.go('search');
+  };
+
+  $scope.movieDetails = function(id) {
+    $state.go('movie-details', {"id":id});
+  };
+
+  $scope.getFavoris = function() {
+    $http({
+       method : "GET",
+       url : "http://localhost:8080/api/favoris/" + $scope.user.id
+    }).then(function mySuccess(response) {
+       $scope.favoris = response.data;
+    }, function myError(error) {
+      console.log(error);
+    });
+  };
+
+  $scope.removeFavoris = function(favorisId) {
+    $http({
+       method : "DELETE",
+       url : "http://localhost:8080/api/favoris/" + favorisId
+    }).then(function mySuccess(response) {
+       for (var i = 0; i < $scope.favoris.length; i++) {
+        if ($scope.favoris[i].id == favorisId) {
+          $scope.favoris.splice(i, 1);
+        }
+       }
+    }, function myError(error) {
+      console.log(error);
+    });
+  }
+
+  $scope.getFavoris();
 });

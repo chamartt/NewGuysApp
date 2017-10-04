@@ -1,0 +1,31 @@
+<ion-view view-title="Favoris" name="movies-list-view">
+  <div class="bar bar-subheader" style="justify-content: space-between;">
+    <div class="button-bar">
+      <div class="subheader-item" ng-click="goToSearch()">Rechercher</div>
+      <div class="subheader-item" ng-click="goToSuggestions()">Suggestions</div>
+      <div class="subheader-item" ng-click="showAlert()">{{ user.login }}</div>
+    </div>
+  </div>
+  <ion-content class="padding" style="margin-top: 50px; margin-bottom: 50px;">
+    <div class="list">
+      <div class="item item-thumbnail-left list-item" ng-repeat="favori in favoris track by $index">
+        <img class="movie-img" ng-src="{{favori.image}}" />
+        <div class="list-item-info">
+          <div style="display: inline-block;">
+            <h2>{{ favori.titre }}</h2>
+            <p>Sortie : {{ favori.dtSortie | date:'dd/MM/yyyy'}}</p>
+            <p>Note : {{ favori.note}} / 10</p>
+          </div>
+          <div style="display: inline-block; float: right">
+            <button class="button button-assertive button-block" ng-click="removeFavoris(favori.id)">
+              <ion-icon class="ion-ios-trash-outline" style="vertical-align: middle; font-size: 24px;"></ion-icon>
+            </button>
+          </div>
+          <div class="button-bar">
+            <button class="button button-calm button-block" ng-click="movieDetails(favori.filmId)">Details</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>
